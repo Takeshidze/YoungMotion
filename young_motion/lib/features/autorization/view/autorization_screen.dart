@@ -1,8 +1,11 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:young_motion/features/autorization/widgets/login_form.dart';
 import 'package:young_motion/features/autorization/widgets/registr_form.dart';
 
+@RoutePage()
 class AutorizationScreen extends StatefulWidget {
   @override
   State<AutorizationScreen> createState() => _AutorizationScreenState();

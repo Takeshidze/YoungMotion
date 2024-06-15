@@ -3,7 +3,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:young_motion/core/models/lesson_date.dart';
-import 'package:young_motion/features/home/widgets/employee_card.dart';
+import 'package:young_motion/core/widgets/employee_card.dart';
 
 class LessonCard extends StatelessWidget {
   final LessonDate lesson;

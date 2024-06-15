@@ -1,4 +1,4 @@
-import 'package:young_motion/core/models/employee_for_lesson.dart';
+import 'package:young_motion/core/models/employess_model/employee_for_lesson.dart';
 
 class LessonDate {
   final int id;

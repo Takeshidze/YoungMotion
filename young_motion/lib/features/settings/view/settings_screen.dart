@@ -1,5 +1,8 @@
+import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
+@RoutePage()
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -58,7 +61,7 @@ class SettingsScreen extends StatelessWidget {
                     title: 'Поддержка',
                     icon: Icons.support_agent,
                     onTap: () {
-                      // Handle tap event
+                      Supabase.instance.client.auth.signOut();
                     },
                   ),
                 ],
@@ -71,36 +74,70 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-class UserHeader extends StatelessWidget {
+class UserHeader extends StatefulWidget {
+  @override
+  State<UserHeader> createState() => _UserHeaderState();
+}
+
+class _UserHeaderState extends State<UserHeader> {
+  final _supabase = Supabase.instance.client;
+
+  String _firstName = '';
+
+  String _lastName = '';
+
+  String _email = '';
+
+  String _avatarUrl = '';
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    final user = _supabase.auth.currentUser;
+    if (user != null) {
+      final profilesResponse = await _supabase
+          .from('profiles')
+          .select('first_name, second_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+
+      setState(() {
+        _firstName = profilesResponse['first_name'] ?? "";
+        _lastName = profilesResponse['second_name'] ?? "";
+        _avatarUrl = profilesResponse['avatar_url'] ?? "";
+        _email = user.email.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(),
-      child: Column(
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage('assets/images/logo.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SizedBox(height: 16),
-          Text(
-            'User Name',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            'user@example.com',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-        ],
-      ),
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 50,
+          backgroundImage: NetworkImage(_avatarUrl),
+        ),
+        SizedBox(height: 20),
+        Text(
+          '$_firstName $_lastName',
+          style: TextStyle(fontSize: 24),
+        ),
+        SizedBox(height: 10),
+        Text(
+          _email,
+          style: TextStyle(fontSize: 18),
+        ),
+      ],
     );
   }
 }

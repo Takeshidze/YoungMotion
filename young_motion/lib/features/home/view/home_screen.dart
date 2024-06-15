@@ -1,10 +1,18 @@
+import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:young_motion/core/models/employess_model/employee.dart';
+import 'package:young_motion/core/models/events_model/event_preview_model.dart';
+import 'package:young_motion/core/repository/employees_service/employee_service_impl.dart';
+import 'package:young_motion/core/repository/events_service/event_service_impl.dart';
 import 'package:young_motion/features/home/widgets/nearest_entry_card.dart';
+import 'package:young_motion/routes/app_router.dart';
 
 import '../widgets/club_card.dart';
-import '../widgets/employee_card.dart';
+import '../../../core/widgets/employee_card.dart';
 import '../widgets/news_card.dart';
 import '../widgets/service_card.dart';
 
@@ -58,47 +66,34 @@ class _HomeScreenState extends State<HomeScreen> {
       'imageUrl': 'https://via.placeholder.com/100',
     },
   ];
-  final List<Club> clubs = [
-    Club(
-      imageUrl: 'https://via.placeholder.com/400x300',
-      title: 'Club 1',
-      discount: '50% OFF',
-    ),
-    Club(
-      imageUrl: 'https://via.placeholder.com/400x300',
-      title: 'Club 2',
-      discount: '30% OFF',
-    ),
-    Club(
-      imageUrl: 'https://via.placeholder.com/400x300',
-      title: 'Club 3',
-      discount: '20% OFF',
-    ),
-    Club(
-      imageUrl: 'https://via.placeholder.com/400x300',
-      title: 'Club 4',
-      discount: '40% OFF',
-    ),
-    Club(
-      imageUrl: 'https://via.placeholder.com/400x300',
-      title: 'Club 5',
-      discount: '60% OFF',
-    ),
-  ];
-  final List<Employee> employees = [
-    Employee(
-        imageUrl: 'https://kangabdi.files.wordpress.com/2017/10/men.png',
-        employeeName: 'John Doe',
-        position: 'Software Engineer',
-        rating: 4.5,
-        backgroundColor: Colors.blueAccent),
-    Employee(
-        imageUrl: 'https://kangabdi.files.wordpress.com/2017/10/men.png',
-        employeeName: 'Jane Doe',
-        position: 'Product Manager',
-        rating: 4.8,
-        backgroundColor: Colors.green),
-  ];
+
+  final EmployeeServiceImpl _employeeService = EmployeeServiceImpl();
+  final EventServiceImpl _eventService = EventServiceImpl();
+  List<Employee> _employees = [];
+  List<EventPreviewModel> _events = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmployees();
+    _loadEventsPreview();
+  }
+
+  Future<void> _loadEmployees() async {
+    var employees =
+        await _employeeService.getEmployees(10); // Получаем 10 сотрудников
+    setState(() {
+      _employees = employees;
+    });
+  }
+
+  Future<void> _loadEventsPreview() async {
+    var events = await _eventService.getPreviewEvents();
+
+    setState(() {
+      _events = events;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,28 +213,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ]),
             ),
-            CarouselSlider(
-              options: CarouselOptions(
-                height: MediaQuery.of(context).size.height / 4,
-                initialPage: 0,
-                enableInfiniteScroll: false,
-                reverse: false,
-                autoPlay: false,
-                enlargeCenterPage: true,
-                disableCenter: true,
+            Container(
+              height: MediaQuery.of(context).size.height * 0.16,
+              child: ListView.builder(
                 scrollDirection: Axis.horizontal,
+                itemCount: _events.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      context.navigateTo(
+                          EventDetailsRoute(eventId: _events[index].id));
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width *
+                          0.4, // ширина контейнера
+                      margin: EdgeInsets.all(4), // отступы
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            BorderRadius.circular(4), // скругленные углы
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              _events[index].image_url), // картинка
+                          fit: BoxFit.cover, // масштабирование картинки
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-              items: clubs.map((club) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return ClubCard(
-                      imageUrl: club.imageUrl,
-                      title: club.title,
-                      discount: club.discount,
-                    );
-                  },
-                );
-              }).toList(),
             ),
             Container(
               padding: EdgeInsets.all(16.0),
@@ -252,12 +253,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     Spacer(),
-                    Text(
-                      'Показать еще',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500),
+                    TextButton(
+                      onPressed: () {
+                        context.pushRoute(EmloyeesListRoute());
+                      },
+                      child: Text(
+                        'Показать еще',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
+                      ),
+                      style: TextButton.styleFrom(minimumSize: Size.zero),
                     ),
                   ]),
             ),
@@ -265,11 +272,11 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 240,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: employees.length,
+                itemCount: _employees.length,
                 itemExtent: 180,
                 itemBuilder: (context, index) {
                   return EmployeeCard(
-                    employee: employees[index],
+                    employee: _employees[index],
                   );
                 },
               ),

@@ -1,20 +1,5 @@
 import 'package:flutter/material.dart';
-
-class Employee {
-  final String imageUrl;
-  final String employeeName;
-  final String position;
-  final double rating;
-  final Color backgroundColor;
-
-  Employee({
-    required this.imageUrl,
-    required this.employeeName,
-    required this.position,
-    required this.rating,
-    required this.backgroundColor,
-  });
-}
+import 'package:young_motion/core/models/employess_model/employee.dart';
 
 class EmployeeCard extends StatelessWidget {
   Employee employee;
@@ -38,21 +23,21 @@ class EmployeeCard extends StatelessWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
-              color: employee.backgroundColor,
+              color: Colors.white70,
               borderRadius: BorderRadius.circular(8.0),
               image: DecorationImage(
-                image: NetworkImage(employee.imageUrl),
+                image: NetworkImage(employee.avatar_url),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           SizedBox(height: 10),
           Text(
-            employee.employeeName,
+            employee.full_name,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           Text(
-            employee.position,
+            employee.post,
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
           Row(

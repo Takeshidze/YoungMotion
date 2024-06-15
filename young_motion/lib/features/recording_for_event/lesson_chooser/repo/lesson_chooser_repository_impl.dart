@@ -1,6 +1,6 @@
 import 'package:http/http.dart' as http;
 
-import 'package:young_motion/core/models/employee_for_lesson.dart';
+import 'package:young_motion/core/models/employess_model/employee_for_lesson.dart';
 import 'dart:convert';
 
 import 'package:young_motion/core/models/lesson_date.dart';
