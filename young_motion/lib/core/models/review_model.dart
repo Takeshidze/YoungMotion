@@ -17,11 +17,10 @@ class ReviewModel {
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
-      id: json['id'] ?? '',
-      user: ProfileModel.fromJson(json['user']),
-      description: json['description'] ?? '',
-      stars: json['stars'] ?? '',
-      created_at: json['created_at'] ?? '',
-    );
+        id: json['id'] ?? '',
+        user: ProfileModel.fromJson(json['user']),
+        description: json['description'] ?? '',
+        stars: json['stars'] ?? '',
+        created_at: DateTime.parse(json['created_at']));
   }
 }

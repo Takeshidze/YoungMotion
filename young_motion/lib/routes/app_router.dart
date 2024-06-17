@@ -10,6 +10,8 @@ import 'package:young_motion/features/event_list/view/event_listing_screen.dart'
 import 'package:young_motion/features/home/view/home_screen.dart';
 import 'package:young_motion/features/recording_for_event/view/chechout_screen.dart';
 import 'package:young_motion/features/settings/view/settings_screen.dart';
+import 'package:young_motion/features/settings/widgets/profile_edit_screen.dart';
+import 'package:young_motion/features/settings/widgets/records_screen.dart';
 import 'package:young_motion/main_screen.dart';
 import 'package:young_motion/routes/auth_guard.dart';
 
@@ -17,13 +19,8 @@ part 'app_router.gr.dart';
 
 @AutoRouterConfig(replaceInRouteName: 'Screen,Route')
 class AppRouter extends _$AppRouter {
-  AppRouter() {
-    SharedPreferences.getInstance().then((prefs) {
-      _preferences = prefs;
-    });
-  }
+  AppRouter() {}
 
-  late SharedPreferences _preferences;
   @override
   List<AutoRoute> get routes => [
         AutoRoute(
@@ -41,15 +38,35 @@ class AppRouter extends _$AppRouter {
                   ),
                 ]),
               ]),
-              AutoRoute(path: 'profile', page: SettingsRoute.page),
-              AutoRoute(path: 'events', page: EmptyRoute.page, children: [
-                AutoRoute(path: '', page: EventListingRoute.page),
+              AutoRoute(path: 'events', page: EventTab.page, children: [
                 AutoRoute(
-                    path: ':eventId',
+                  path: '',
+                  page: EventListingRoute.page,
+                ),
+                AutoRoute(path: ':eventId', page: EmptyRoute.page, children: [
+                  AutoRoute(
+                    path: 'details',
                     page: EventDetailsRoute.page,
-                    children: [
-                      AutoRoute(path: 'form', page: CheckoutRoute.page),
-                    ]),
+                  ),
+                  AutoRoute(
+                    path: 'checkout',
+                    page: CheckoutRoute.page,
+                  ),
+                ])
+              ]),
+              AutoRoute(path: 'settings', page: SettingsTab.page, children: [
+                AutoRoute(
+                  path: '',
+                  page: SettingsRoute.page,
+                ),
+                AutoRoute(
+                  path: 'profile',
+                  page: ProfileEditRoute.page,
+                ),
+                AutoRoute(
+                  path: 'records',
+                  page: RecordsRoute.page,
+                ),
               ]),
             ]),
         AutoRoute(
@@ -64,6 +81,11 @@ class EmptyRoutePage extends AutoRouter {
   const EmptyRoutePage({super.key});
 }
 
+@RoutePage(name: 'EventTab')
+class EventTabPage extends AutoRouter {
+  const EventTabPage({super.key});
+}
+
 @RoutePage(name: 'HomeTab')
 class HomeTabPage extends AutoRouter {
   const HomeTabPage({super.key});
@@ -72,4 +94,9 @@ class HomeTabPage extends AutoRouter {
 @RoutePage(name: 'EmployeeTab')
 class EmployeeTabPage extends AutoRouter {
   const EmployeeTabPage({super.key});
+}
+
+@RoutePage(name: 'SettingsTab')
+class SettingsTabPage extends AutoRouter {
+  const SettingsTabPage({super.key});
 }

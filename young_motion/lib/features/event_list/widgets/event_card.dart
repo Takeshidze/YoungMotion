@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:young_motion/core/models/events_model/event_listing_model.dart';
 
 class EventCard extends StatelessWidget {
-  final int id;
-  final String event_name;
-  final String logo_image;
-  final String duration;
-  final String employee;
-  final String age_restricrion;
-
-  EventCard({
-    required this.id,
-    required this.event_name,
-    required this.logo_image,
-    required this.duration,
-    required this.employee,
-    required this.age_restricrion,
-  });
-
+  final EventListingModel event;
+  EventCard({required this.event});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,7 +19,7 @@ class EventCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(
-            logo_image,
+            event.logo_image,
             width: 80,
             height: 80,
             fit: BoxFit.cover,
@@ -44,20 +31,20 @@ class EventCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  event_name,
+                  event.event_name,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 4),
-                Text(employee),
+                Text(event.employee),
                 SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(age_restricrion + '+'),
+                    Text(event.age_restriction + '+'),
                     SizedBox(width: 16),
-                    Text('2 часа'),
+                    Text(event.duration),
                     Spacer(),
                     Text(
-                      '900 руб',
+                      event.price,
                       style: TextStyle(
                           color: Colors.blue, fontWeight: FontWeight.bold),
                     ),

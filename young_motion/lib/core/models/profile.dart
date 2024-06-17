@@ -10,9 +10,9 @@ class ProfileModel {
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
-      avatarUrl: json['avatar_url'],
-      first_name: json['first_name'],
-      second_name: json['second_name'],
+      avatarUrl: json['avatar_url'] ?? "",
+      first_name: json['first_name'] ?? "",
+      second_name: json['second_name'] ?? "",
     );
   }
 }

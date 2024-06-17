@@ -4,7 +4,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:young_motion/app.dart';
 
-import 'features/recording_for_event/person_form/bloc/person_bloc.dart';
 import 'features/test.dart';
 
 Future<void> main() async {
@@ -16,3 +15,5 @@ Future<void> main() async {
     runApp(YoungMotion());
   });
 }
+
+final supabase = Supabase.instance.client;

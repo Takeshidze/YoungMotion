@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:young_motion/core/models/person.dart';
 
-import '../../steps/bloc/step_bloc.dart';
-import '../index.dart';
-
 class PersonForm extends StatefulWidget {
+  final Person person;
+  final Function(Person) onUpdatePerson;
+  const PersonForm(
+      {super.key, required this.person, required this.onUpdatePerson});
   @override
   _PersonFormState createState() => _PersonFormState();
 }
@@ -19,23 +20,17 @@ class _PersonFormState extends State<PersonForm> {
   final _phoneNumberController = TextEditingController();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final personBloc = context.watch<PersonBloc>();
-    final personState = personBloc.state;
-    if (personState is PersonStateSaved) {
-      _surnameController.text = personState.person.surname;
-      _nameController.text = personState.person.name;
-      _genderController = personState.person.gender;
-      _emailController.text = personState.person.email;
-      _phoneNumberController.text = personState.person.phone;
-    }
+  void initState() {
+    super.initState();
+    setState(() {
+      _surnameController.text = widget.person.surname;
+      _nameController.text = widget.person.name;
+      _emailController.text = widget.person.email;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final personBloc = context.watch<PersonBloc>();
-    final personState = personBloc.state;
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -44,12 +39,6 @@ class _PersonFormState extends State<PersonForm> {
             const SizedBox(
               height: 16,
             ),
-            Center(
-              child: Text("Запись",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-            ),
-            Divider(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -181,6 +170,7 @@ class _PersonFormState extends State<PersonForm> {
                     ),
                   ),
                   TextFormField(
+                    keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
                     decoration: const InputDecoration(
                         hintText: 'Email',
@@ -216,6 +206,7 @@ class _PersonFormState extends State<PersonForm> {
                   ),
                   TextFormField(
                     controller: _phoneNumberController,
+                    keyboardType: TextInputType.phone,
                     decoration: const InputDecoration(
                         hintText: 'Номер телефона',
                         enabledBorder: OutlineInputBorder(
@@ -238,24 +229,40 @@ class _PersonFormState extends State<PersonForm> {
                 ],
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final person = Person(
-                    surname: _surnameController.text,
-                    name: _nameController.text,
-                    gender: _genderController,
-                    email: _emailController.text,
-                    phone: _phoneNumberController.text,
-                  );
-                  context
-                      .read<PersonBloc>()
-                      .add(PersonFormSubmitted(person: person));
-                  context.read<StepBloc>().add(NextStepEvent());
-                }
-              },
-              child: Text('Сохранить'),
-            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          final person = Person(
+                            surname: _surnameController.text,
+                            name: _nameController.text,
+                            gender: _genderController,
+                            email: _emailController.text,
+                            phone: _phoneNumberController.text,
+                          );
+                          widget.onUpdatePerson(person);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      child: const Text(
+                        'Далее',
+                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),

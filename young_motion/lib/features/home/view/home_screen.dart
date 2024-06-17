@@ -5,10 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:young_motion/core/models/employess_model/employee.dart';
+import 'package:young_motion/core/models/employess_model/employee_details_model.dart';
+import 'package:young_motion/core/models/events_model/event_detail_model.dart';
+import 'package:young_motion/core/models/events_model/event_news_model.dart';
 import 'package:young_motion/core/models/events_model/event_preview_model.dart';
+import 'package:young_motion/core/models/profile.dart';
+import 'package:young_motion/core/models/record_model.dart';
 import 'package:young_motion/core/repository/employees_service/employee_service_impl.dart';
 import 'package:young_motion/core/repository/events_service/event_service_impl.dart';
-import 'package:young_motion/features/home/widgets/nearest_entry_card.dart';
+import 'package:young_motion/core/repository/profile_service/profile_service_impl.dart';
+import 'package:young_motion/core/repository/records_service/records_service_impl.dart';
+import 'package:young_motion/core/widgets/nearest_entry_card.dart';
 import 'package:young_motion/routes/app_router.dart';
 
 import '../widgets/club_card.dart';
@@ -25,58 +32,42 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final List<Map<String, dynamic>> serviceList = [
     {
-      'iconData': Icons.settings,
+      'iconData': Icons.person,
       'iconColor': Colors.blue,
       'backgroundColor': Colors.blue[50],
-      'title': 'Услуга 1',
+      'title': 'Стать волонотером',
     },
     {
       'iconData': Icons.help,
       'iconColor': Colors.green,
       'backgroundColor': Colors.green[50],
-      'title': 'Услуга 2',
-    },
-    {
-      'iconData': Icons.info,
-      'iconColor': Colors.red,
-      'backgroundColor': Colors.red[50],
-      'title': 'Услуга 3',
-    },
-    {
-      'iconData': Icons.info,
-      'iconColor': Colors.red,
-      'backgroundColor': Colors.red[50],
-      'title': 'Услуга 4',
-    },
-  ];
-  final List<Map<String, String>> newsList = [
-    {
-      'title': 'Новость 1',
-      'description': 'Описание 1',
-      'imageUrl': 'https://via.placeholder.com/500',
-    },
-    {
-      'title': 'Новость 2',
-      'description': 'Описание  2',
-      'imageUrl': 'https://kangabdi.files.wordpress.com/2017/10/men.png',
-    },
-    {
-      'title': 'Новость 3',
-      'description': 'Описание  3',
-      'imageUrl': 'https://via.placeholder.com/100',
+      'title': 'Заказать меропритие',
     },
   ];
 
   final EmployeeServiceImpl _employeeService = EmployeeServiceImpl();
   final EventServiceImpl _eventService = EventServiceImpl();
+  final RecordSeviceImpl _recordService = RecordSeviceImpl();
+  final ProfileServiceImpl _profileService = ProfileServiceImpl();
   List<Employee> _employees = [];
   List<EventPreviewModel> _events = [];
+  List<EventNewsModal> _news = [];
+  late Future<RecordModel> _record;
+  late Future<ProfileModel> _profile;
 
   @override
   void initState() {
-    super.initState();
+    _loadNews();
+    _profile = _loadProfile();
+    _record = _loadRecord();
     _loadEmployees();
     _loadEventsPreview();
+    super.initState();
+  }
+
+  Future<ProfileModel> _loadProfile() async {
+    ProfileModel profile = await _profileService.getProfile();
+    return profile; // Получаем 10 сотрудников
   }
 
   Future<void> _loadEmployees() async {
@@ -84,6 +75,14 @@ class _HomeScreenState extends State<HomeScreen> {
         await _employeeService.getEmployees(10); // Получаем 10 сотрудников
     setState(() {
       _employees = employees;
+    });
+  }
+
+  Future<void> _loadNews() async {
+    var news = await _eventService.getNews();
+
+    setState(() {
+      _news = news;
     });
   }
 
@@ -95,23 +94,47 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<RecordModel> _loadRecord() async {
+    RecordModel record = await _recordService.getLastRecord();
+    print(record);
+    return record;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Привет пользователь'),
+        title: FutureBuilder<ProfileModel>(
+          future: _profile,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text(
+                'Здравствуйте ${snapshot.data!.first_name} ${snapshot.data!.second_name}',
+                style: TextStyle(fontSize: 16),
+              );
+            } else {
+              return Text('Loading...');
+            }
+          },
+        ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.account_circle),
-            onPressed: () {},
+          FutureBuilder<ProfileModel>(
+            future: _profile,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return CircleAvatar(
+                  radius: 20,
+                  backgroundImage: snapshot.data!.avatarUrl != ''
+                      ? NetworkImage(snapshot.data!.avatarUrl)
+                      : null,
+                );
+              } else {
+                return CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.grey,
+                );
+              }
+            },
           ),
         ],
       ),
@@ -129,13 +152,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 enlargeCenterPage: false,
                 scrollDirection: Axis.horizontal,
               ),
-              items: newsList.map((item) {
+              items: _news.map((item) {
                 return Builder(
                   builder: (BuildContext context) {
                     return NewsCard(
-                      title: item['title'] ?? "",
-                      description: item['description'] ?? "",
-                      imageUrl: item['imageUrl'] ?? "",
+                      title: item.title ?? "",
+                      imageUrl: item.image_url ?? "",
+                      onTap: () {
+                        context.router
+                            .push(EventDetailsRoute(eventId: item.id));
+                      },
                     );
                   },
                 );
@@ -192,7 +218,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ]),
             ),
-            Container(margin: EdgeInsets.all(8.0), child: NearesEntryCard()),
+            FutureBuilder<RecordModel>(
+                future: _record,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Container(
+                        margin: EdgeInsets.all(8.0),
+                        child: NearesEntryCard(
+                          recordModel: snapshot.data!,
+                        ));
+                  } else if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return Text('У вас нет ближайших мероприятий');
+                  }
+                  return const CircularProgressIndicator();
+                }),
             Container(
               padding: EdgeInsets.all(16.0),
               child: Row(
@@ -204,12 +244,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     Spacer(),
-                    Text(
-                      'Показать еще',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w500),
+                    TextButton(
+                      onPressed: () {
+                        context.navigateTo(EventTab());
+                      },
+                      child: Text(
+                        'Показать еще',
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
+                      ),
+                      style: TextButton.styleFrom(minimumSize: Size.zero),
                     ),
                   ]),
             ),
@@ -221,8 +267,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      context.navigateTo(
-                          EventDetailsRoute(eventId: _events[index].id));
+                      context.router.navigate(EventTab(children: [
+                        // push any sequence of Account routes here
+                        // the last route will be the one that is currently visible
+                        EventDetailsRoute(eventId: _events[index].id)
+                      ]));
                     },
                     child: Container(
                       width: MediaQuery.of(context).size.width *
@@ -275,8 +324,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemCount: _employees.length,
                 itemExtent: 180,
                 itemBuilder: (context, index) {
-                  return EmployeeCard(
-                    employee: _employees[index],
+                  return GestureDetector(
+                    onTap: () {
+                      context.pushRoute(EmployeeDetailsRoute(
+                          employeeId: _employees[index].id));
+                    },
+                    child: EmployeeCard(
+                      employee: _employees[index],
+                    ),
                   );
                 },
               ),

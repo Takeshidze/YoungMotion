@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class ServiceCard extends StatelessWidget {
   final IconData iconData;
@@ -23,13 +24,13 @@ class ServiceCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8.0),
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
       ),
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: backgroundColor,
               borderRadius: BorderRadius.circular(8.0),
@@ -38,22 +39,20 @@ class ServiceCard extends StatelessWidget {
               child: Icon(
                 iconData,
                 color: iconColor,
-                size: 24,
+                size: 20,
               ),
             ),
           ),
+          SizedBox(
+            width: 4,
+          ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
+              child: Text(
+                title,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                style: TextStyle(fontSize: 13),
               ),
             ),
           ),

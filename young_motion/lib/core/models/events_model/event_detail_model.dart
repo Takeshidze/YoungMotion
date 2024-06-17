@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:young_motion/core/models/employess_model/employee.dart';
 
 class EventDetailModel {
@@ -7,7 +8,7 @@ class EventDetailModel {
   final List<String> images;
   final String duration;
   final Employee employee;
-  final int age_restricrion;
+  final String age_restricrion;
 
   EventDetailModel({
     required this.id,
@@ -26,7 +27,7 @@ class EventDetailModel {
       event_name: json['event_name'] ?? '',
       duration: json['duration'] ?? '',
       employee: Employee.fromJson(json['employees']),
-      age_restricrion: json['age_restriction'] ?? '',
+      age_restricrion: json['age_restriction'].toString() ?? '',
       description: json['description'] ?? '',
     );
   }

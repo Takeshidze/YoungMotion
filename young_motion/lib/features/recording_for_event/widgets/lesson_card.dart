@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:young_motion/core/models/lesson_date.dart';
+import 'package:young_motion/core/models/lesson_date_model.dart';
 import 'package:young_motion/core/widgets/employee_card.dart';
 
 class LessonCard extends StatelessWidget {
-  final LessonDate lesson;
+  final LessonDateModel lesson;
   final bool isSelected;
   const LessonCard({Key? key, required this.lesson, required this.isSelected})
       : super(key: key);
@@ -57,10 +57,21 @@ class LessonCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(8),
+                    child: CircleAvatar(
+                      radius: 16.0,
+                      backgroundImage: NetworkImage(lesson.employee.avatarUrl),
+                    ),
+                  ),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
               Row(

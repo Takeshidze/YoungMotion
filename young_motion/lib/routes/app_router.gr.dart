@@ -24,12 +24,16 @@ abstract class _$AppRouter extends RootStackRouter {
     CheckoutRoute.name: (routeData) {
       final pathParams = routeData.inheritedPathParams;
       final args = routeData.argsAs<CheckoutRouteArgs>(
-          orElse: () => CheckoutRouteArgs());
+          orElse: () => CheckoutRouteArgs(
+                  eventId: pathParams.getInt(
+                'eventId',
+                -1,
+              )));
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: CheckoutScreen(
           key: args.key,
-          eventId: pathParams.getInt('eventId'),
+          eventId: args.eventId,
         ),
       );
     },
@@ -45,7 +49,7 @@ abstract class _$AppRouter extends RootStackRouter {
           orElse: () => EmployeeDetailsRouteArgs(
                   employeeId: pathParams.getInt(
                 'employeeId',
-                -3,
+                -1,
               )));
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -73,7 +77,7 @@ abstract class _$AppRouter extends RootStackRouter {
           orElse: () => EventDetailsRouteArgs(
                   eventId: pathParams.getInt(
                 'eventId',
-                -3,
+                -1,
               )));
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -89,6 +93,12 @@ abstract class _$AppRouter extends RootStackRouter {
         child: EventListingScreen(),
       );
     },
+    EventTab.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const EventTabPage(),
+      );
+    },
     HomeRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -101,6 +111,18 @@ abstract class _$AppRouter extends RootStackRouter {
         child: const HomeTabPage(),
       );
     },
+    ProfileEditRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: ProfileEditScreen(),
+      );
+    },
+    RecordsRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: RecordsScreen(),
+      );
+    },
     RootRoute.name: (routeData) {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
@@ -111,6 +133,12 @@ abstract class _$AppRouter extends RootStackRouter {
       return AutoRoutePage<dynamic>(
         routeData: routeData,
         child: SettingsScreen(),
+      );
+    },
+    SettingsTab.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SettingsTabPage(),
       );
     },
   };
@@ -135,10 +163,15 @@ class AutorizationRoute extends PageRouteInfo<void> {
 class CheckoutRoute extends PageRouteInfo<CheckoutRouteArgs> {
   CheckoutRoute({
     Key? key,
+    int eventId = -1,
     List<PageRouteInfo>? children,
   }) : super(
           CheckoutRoute.name,
-          args: CheckoutRouteArgs(key: key),
+          args: CheckoutRouteArgs(
+            key: key,
+            eventId: eventId,
+          ),
+          rawPathParams: {'eventId': eventId},
           initialChildren: children,
         );
 
@@ -149,13 +182,18 @@ class CheckoutRoute extends PageRouteInfo<CheckoutRouteArgs> {
 }
 
 class CheckoutRouteArgs {
-  const CheckoutRouteArgs({this.key});
+  const CheckoutRouteArgs({
+    this.key,
+    this.eventId = -1,
+  });
 
   final Key? key;
 
+  final int eventId;
+
   @override
   String toString() {
-    return 'CheckoutRouteArgs{key: $key}';
+    return 'CheckoutRouteArgs{key: $key, eventId: $eventId}';
   }
 }
 
@@ -178,7 +216,7 @@ class EmloyeesListRoute extends PageRouteInfo<void> {
 class EmployeeDetailsRoute extends PageRouteInfo<EmployeeDetailsRouteArgs> {
   EmployeeDetailsRoute({
     Key? key,
-    int employeeId = -3,
+    int employeeId = -1,
     List<PageRouteInfo>? children,
   }) : super(
           EmployeeDetailsRoute.name,
@@ -199,7 +237,7 @@ class EmployeeDetailsRoute extends PageRouteInfo<EmployeeDetailsRouteArgs> {
 class EmployeeDetailsRouteArgs {
   const EmployeeDetailsRouteArgs({
     this.key,
-    this.employeeId = -3,
+    this.employeeId = -1,
   });
 
   final Key? key;
@@ -245,7 +283,7 @@ class EmptyRoute extends PageRouteInfo<void> {
 class EventDetailsRoute extends PageRouteInfo<EventDetailsRouteArgs> {
   EventDetailsRoute({
     Key? key,
-    int eventId = -3,
+    int eventId = -1,
     List<PageRouteInfo>? children,
   }) : super(
           EventDetailsRoute.name,
@@ -266,7 +304,7 @@ class EventDetailsRoute extends PageRouteInfo<EventDetailsRouteArgs> {
 class EventDetailsRouteArgs {
   const EventDetailsRouteArgs({
     this.key,
-    this.eventId = -3,
+    this.eventId = -1,
   });
 
   final Key? key;
@@ -289,6 +327,20 @@ class EventListingRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'EventListingRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [EventTabPage]
+class EventTab extends PageRouteInfo<void> {
+  const EventTab({List<PageRouteInfo>? children})
+      : super(
+          EventTab.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'EventTab';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -322,6 +374,34 @@ class HomeTab extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ProfileEditScreen]
+class ProfileEditRoute extends PageRouteInfo<void> {
+  const ProfileEditRoute({List<PageRouteInfo>? children})
+      : super(
+          ProfileEditRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'ProfileEditRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [RecordsScreen]
+class RecordsRoute extends PageRouteInfo<void> {
+  const RecordsRoute({List<PageRouteInfo>? children})
+      : super(
+          RecordsRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'RecordsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
 /// [RootScreen]
 class RootRoute extends PageRouteInfo<void> {
   const RootRoute({List<PageRouteInfo>? children})
@@ -345,6 +425,20 @@ class SettingsRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'SettingsRoute';
+
+  static const PageInfo<void> page = PageInfo<void>(name);
+}
+
+/// generated route for
+/// [SettingsTabPage]
+class SettingsTab extends PageRouteInfo<void> {
+  const SettingsTab({List<PageRouteInfo>? children})
+      : super(
+          SettingsTab.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'SettingsTab';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }

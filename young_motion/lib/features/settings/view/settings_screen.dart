@@ -1,8 +1,10 @@
 import 'package:auto_route/annotations.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:young_motion/routes/app_router.dart';
 
-@RoutePage()
+@RoutePage(deferredLoading: false)
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -11,7 +13,9 @@ class SettingsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.edit),
-            onPressed: () {},
+            onPressed: () {
+              context.router.push(ProfileEditRoute());
+            },
           )
         ],
       ),
@@ -30,31 +34,17 @@ class SettingsScreen extends StatelessWidget {
               child: ListView(
                 children: [
                   SettingsTile(
-                    title: 'Понравившиеся',
-                    icon: Icons.favorite,
+                    title: 'Профиль',
+                    icon: Icons.person,
                     onTap: () {
-                      // Handle tap event
-                    },
-                  ),
-                  SettingsTile(
-                    title: 'Оплата',
-                    icon: Icons.payment,
-                    onTap: () {
-                      // Handle tap event
+                      context.router.push(ProfileEditRoute());
                     },
                   ),
                   SettingsTile(
                     title: 'Ваши записи',
                     icon: Icons.post_add,
                     onTap: () {
-                      // Handle tap event
-                    },
-                  ),
-                  SettingsTile(
-                    title: 'Настройки',
-                    icon: Icons.settings,
-                    onTap: () {
-                      // Handle tap event
+                      context.router.push(RecordsRoute());
                     },
                   ),
                   SettingsTile(
@@ -64,6 +54,20 @@ class SettingsScreen extends StatelessWidget {
                       Supabase.instance.client.auth.signOut();
                     },
                   ),
+                  ListTile(
+                    title: TextButton(
+                        onPressed: () {
+                          Supabase.instance.client.auth.signOut();
+                          context.router.popAndPush(AutorizationRoute());
+                        },
+                        child: Text(
+                          "Выйти",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.redAccent),
+                        )),
+                  )
                 ],
               ),
             ),

@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 
 class NewsCard extends StatelessWidget {
   final String title;
-  final String description;
+  final Function() onTap;
   final String imageUrl;
 
-  NewsCard(
-      {required this.title, required this.description, required this.imageUrl});
+  NewsCard({required this.title, required this.imageUrl, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -29,22 +28,17 @@ class NewsCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
                     ),
                   ),
                   SizedBox(height: 8.0),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
-                  ),
                   SizedBox(height: 8.0),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      onTap;
+                    },
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       backgroundColor: Colors.blue,

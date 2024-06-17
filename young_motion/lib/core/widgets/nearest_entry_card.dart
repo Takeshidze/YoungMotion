@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:young_motion/core/models/record_model.dart';
 
 class NearesEntryCard extends StatelessWidget {
-  const NearesEntryCard({super.key});
+  final RecordModel recordModel;
+  const NearesEntryCard({super.key, required this.recordModel});
 
   @override
   Widget build(BuildContext context) {
+    final month = DateFormat('d MMMM', 'ru_RU').format(recordModel.datetime);
+    final time = DateFormat('HH:mm').format(recordModel.datetime);
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -19,9 +24,8 @@ class NearesEntryCard extends StatelessWidget {
               Container(
                 margin: EdgeInsets.all(8),
                 child: CircleAvatar(
-                  radius: 30.0,
-                  backgroundImage: NetworkImage(
-                      'https://kangabdi.files.wordpress.com/2017/10/men.png'),
+                  radius: 24.0,
+                  backgroundImage: NetworkImage(recordModel.employee.avatarUrl),
                 ),
               ),
               // Name and service name
@@ -31,32 +35,18 @@ class NearesEntryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Teacher Name',
+                      recordModel.employee.fullName,
                       style: TextStyle(
                           fontSize: 18.0, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      'Service Name',
+                      recordModel.event_name,
                       style: TextStyle(fontSize: 16.0, color: Colors.grey),
                     ),
                   ],
                 ),
               ),
               // Status field
-              Spacer(), // takes up the remaining space
-              Container(
-                padding: EdgeInsets.all(4.0),
-                decoration: BoxDecoration(
-                  color: Colors.green[50],
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Center(
-                  child: Text(
-                    'Reserved', // change to "Paid" or "Cancelled" accordingly
-                    style: TextStyle(fontSize: 16.0, color: Colors.green),
-                  ),
-                ),
-              ),
             ],
           ),
           // Start time
@@ -66,13 +56,13 @@ class NearesEntryCard extends StatelessWidget {
               children: [
                 Icon(Icons.access_time, size: 20.0),
                 Text(
-                  '10:00',
+                  time,
                   style: TextStyle(fontSize: 16.0),
                 ),
                 Spacer(),
                 Icon(Icons.date_range, size: 20.0),
                 Text(
-                  '12.05.2024',
+                  month,
                   style: TextStyle(fontSize: 16.0),
                 ),
               ],

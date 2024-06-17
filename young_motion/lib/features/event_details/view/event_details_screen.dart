@@ -1,9 +1,8 @@
-import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:young_motion/core/models/events_model/event_detail_model.dart';
 import 'package:young_motion/core/repository/events_service/event_service_impl.dart';
 import 'package:young_motion/routes/app_router.dart';
@@ -19,9 +18,10 @@ final List<String> imgList = [
 
 @RoutePage()
 class EventDetailsScreen extends StatefulWidget {
-  const EventDetailsScreen(
-      {super.key, @PathParam('eventId') this.eventId = -3});
   final int eventId;
+  const EventDetailsScreen(
+      {super.key, @PathParam('eventId') this.eventId = -1});
+
   @override
   State<EventDetailsScreen> createState() => _EventDetailsScreenState();
 }
@@ -37,8 +37,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
   @override
   void initState() {
     super.initState();
-
     _loadEvent();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   Future<void> _loadEvent() async {
@@ -60,7 +65,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           appBar: AppBar(
             leading: IconButton(
                 onPressed: () {
-                  context.router.removeLast();
+                  context.router.maybePopTop();
                 },
                 icon: Icon(Icons.arrow_back)),
             title: Text(_event!.event_name),
@@ -158,7 +163,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           color: Colors.blue[200],
                         ),
                         Text(
-                          "2 часа",
+                          _event!.duration,
                           style: TextStyle(color: Colors.blue[300]),
                         ),
                         SizedBox(width: 32),
@@ -251,7 +256,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          context.pushRoute(CheckoutRoute());
+                          context.pushRoute(
+                              CheckoutRoute(eventId: widget.eventId));
                         },
                         style: ElevatedButton.styleFrom(
                           elevation: 0,

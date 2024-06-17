@@ -1,159 +1,193 @@
+import 'package:another_stepper/another_stepper.dart';
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:young_motion/core/models/form_data_model.dart';
+import 'package:young_motion/core/models/lesson_date_model.dart';
+import 'package:young_motion/core/models/person.dart';
+import 'package:young_motion/core/repository/lesson_service/lesson_service_impl.dart';
+import 'package:young_motion/features/recording_for_event/widgets/confirm.dart';
+import 'package:young_motion/features/recording_for_event/widgets/lesson_chooser.dart';
+import 'package:young_motion/features/recording_for_event/widgets/person_form.dart';
 
 @RoutePage()
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen(
-      {super.key, @PathParam.inherit('eventId') required int eventId});
+  final int eventId;
+  const CheckoutScreen({super.key, @PathParam('eventId') this.eventId = -1});
   @override
   _CheckoutScreenState createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int _currentStep = 0;
-  final _formKey = GlobalKey<FormState>();
 
-  // Форма для первого шага
-  final _surnameController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _genderController = TextEditingController();
-  final _phoneController = TextEditingController();
+  Person _person = Person();
+  bool _isLoading = true;
+  LessonDateModel? _selectedLesson;
 
-  // Форма для второго шага
-  List<String> _activities = [];
-  String? _selectedActivity;
+  final LessonServiceImpl _lessonService = LessonServiceImpl();
+  List<LessonDateModel> _lessons = [];
 
-  // Форма для третьего шага
-  String _displayName = '';
-  String _displayEmail = '';
-  String _displayActivity = '';
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+    _loadLessons();
+  }
+
+  Future<void> _loadProfileData() async {
+    final _supabase = Supabase.instance.client;
+    final user = _supabase.auth.currentUser;
+    if (user != null) {
+      final profilesResponse = await _supabase
+          .from('profiles')
+          .select('first_name, second_name')
+          .eq('id', user.id)
+          .single();
+
+      setState(() {
+        _person = Person(
+            email: user.email.toString(),
+            name: profilesResponse['first_name'],
+            surname: profilesResponse['second_name']);
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadLessons() async {
+    var lessons = await _lessonService
+        .getLessonByEventId(widget.eventId); // Получаем 10 сотрудников
+    setState(() {
+      _lessons = lessons;
+    });
+  }
+
+  void _updatePerson(Person person) {
+    setState(() {
+      _person = person;
+      print(_person.email);
+      _currentStep = _currentStep + 1;
+    });
+  }
+
+  void _updateLesson(LessonDateModel lesson) {
+    setState(() {
+      _selectedLesson = lesson;
+      print(_selectedLesson!.id);
+    });
+  }
+
+  Future<void> _on_confirm() async {
+    final _supabase = Supabase.instance.client;
+    final user = _supabase.auth.currentUser!.id;
+    FormDataModel formDataModel = FormDataModel(
+        user_id: user,
+        name: _person.name,
+        surname: _person.surname,
+        email: _person.email,
+        phone: _person.phone,
+        gender: _person.gender,
+        lesson_id: _selectedLesson!.id);
+    final response =
+        await _supabase.from('records').insert(formDataModel.toJson());
+    context.router.popUntilRoot();
+  }
+
+  void _on_prev() {
+    if (_currentStep > 0) {
+      setState(() {
+        _currentStep -= 1;
+      });
+    }
+  }
+
+  void _on_next() {
+    if (_currentStep < 2) {
+      setState(() {
+        _currentStep += 1;
+      });
+    }
+  }
+
+  List<StepperData> stepperData = [
+    StepperData(
+        iconWidget: Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.all(Radius.circular(30))),
+      child: const Icon(Icons.looks_one, color: Colors.white),
+    )),
+    StepperData(
+        iconWidget: Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.all(Radius.circular(30))),
+      child: const Icon(Icons.looks_two, color: Colors.white),
+    )),
+    StepperData(
+        iconWidget: Container(
+      padding: const EdgeInsets.all(8),
+      decoration: const BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.all(Radius.circular(30))),
+      child: const Icon(Icons.looks_3, color: Colors.white),
+    ))
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("3-Step Form"),
+        title: Text("Запись"),
       ),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepTapped: (step) => setState(() => _currentStep = step),
-        onStepContinue: () {
-          if (_currentStep < 2) {
-            setState(() => _currentStep += 1);
-          }
-        },
-        onStepCancel: () {
-          if (_currentStep > 0) {
-            setState(() => _currentStep -= 1);
-          }
-        },
-        steps: [
-          Step(
-            title: Text("Шаг 1"),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  CustomInput(
-                    hint: "Фамилия",
-                    controller: _surnameController,
-                  ),
-                  CustomInput(
-                    hint: "Имя",
-                    controller: _nameController,
-                  ),
-                  CustomInput(
-                    hint: "Email",
-                    controller: _emailController,
-                  ),
-                  CustomInput(
-                    hint: "Пол",
-                    controller: _genderController,
-                  ),
-                  CustomInput(
-                    hint: "Номер телефона",
-                    controller: _phoneController,
-                  ),
-                ],
-              ),
-            ),
+      body: Column(
+        children: [
+          AnotherStepper(
+            stepperList: stepperData,
+            stepperDirection: Axis.horizontal,
+            activeBarColor: Colors.blue,
+            inActiveBarColor: Colors.grey.shade300,
+            activeIndex: _currentStep,
+            barThickness: 4,
+            iconWidth:
+                40, // Height that will be applied to all the stepper icons
+            iconHeight: 40,
           ),
-          Step(
-            title: Text("Шаг 2"),
-            content: FutureBuilder(
-              future: _loadActivities(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  _activities = snapshot.data as List<String>;
-                  return Column(
-                    children: [
-                      DropdownButton(
-                        value: _selectedActivity,
-                        onChanged: (value) {
-                          setState(() => _selectedActivity = value as String);
-                        },
-                        items: _activities.map((activity) {
-                          return DropdownMenuItem(
-                            value: activity,
-                            child: Text(activity),
-                          );
-                        }).toList(),
-                      ),
-                    ],
-                  );
-                } else {
-                  return Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-          ),
-          Step(
-            title: Text("Шаг 3"),
-            content: Column(
-              children: [
-                Text("Фамилия: $_displayName"),
-                Text("Имя: $_displayEmail"),
-                Text("Занятие: $_displayActivity"),
-              ],
-            ),
+          Expanded(
+            child: _getStepBody(),
           ),
         ],
       ),
     );
   }
 
-  Future<List<String>> _loadActivities() async {
-    // Здесь должен быть запрос к базе данных для загрузки занятий
-    return ["Занятие 1", "Занятие 2", "Занятие 3"];
-  }
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _displayName = _surnameController.text + " " + _nameController.text;
-      _displayEmail = _emailController.text;
-      _displayActivity = _selectedActivity ?? "";
-      setState(() => _currentStep = 2);
+  Widget _getStepBody() {
+    switch (_currentStep) {
+      case 0:
+        if (_isLoading) {
+          return CircularProgressIndicator();
+        } else
+          return PersonForm(person: _person, onUpdatePerson: _updatePerson);
+      case 1:
+        return LessonChooser(
+          lessons: _lessons,
+          onLessonSelected: _updateLesson,
+          onNext: _on_next,
+          onPrevious: _on_prev,
+        );
+      case 2:
+        return Confirm(
+          lesson: _selectedLesson!,
+          person: _person,
+          onConfirm: _on_confirm,
+          onPrevious: _on_prev,
+        );
+      default:
+        return Container();
     }
-  }
-}
-
-class CustomInput extends StatelessWidget {
-  final String hint;
-  final TextEditingController? controller;
-
-  CustomInput({required this.hint, this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: TextField(
-        controller: controller,
-        decoration:
-            InputDecoration(hintText: hint, border: OutlineInputBorder()),
-      ),
-    );
   }
 }

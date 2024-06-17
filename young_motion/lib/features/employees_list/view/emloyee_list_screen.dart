@@ -40,7 +40,7 @@ class _EmloyeesListScreenState extends State<EmloyeesListScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios),
           onPressed: () {
-            context.router.removeLast();
+            context.router.maybePopTop();
           },
         ),
         title: Text(

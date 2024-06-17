@@ -21,11 +21,11 @@ class _EventListingScreenState extends State<EventListingScreen> {
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    _loadEvents(1);
   }
 
-  Future<void> _loadEvents() async {
-    var events = await _eventService.getListEventsByType('Секция', "");
+  Future<void> _loadEvents(int type) async {
+    var events = await _eventService.getListEventsByType(type);
     setState(() {
       _events = events;
     });
@@ -35,28 +35,22 @@ class _EventListingScreenState extends State<EventListingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () {},
+        title: Center(
+          child: Text(
+            'Активности',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
-        title: Text(
-          'Активности',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.account_circle),
-            onPressed: () {},
-          )
-        ],
       ),
       body: Container(
         margin: EdgeInsets.all(16.0),
         child: Column(
           children: [
-            MySearchBar(),
-            SizedBox(height: 16),
-            Center(child: FilterBar()),
+            Center(child: FilterBar(
+              onChanged: (index) {
+                _loadEvents(index);
+              },
+            )),
             SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -68,12 +62,7 @@ class _EventListingScreenState extends State<EventListingScreen> {
                           EventDetailsRoute(eventId: _events[index].id));
                     },
                     child: EventCard(
-                      id: _events[index].id,
-                      event_name: _events[index].event_name,
-                      logo_image: _events[index].logo_image,
-                      duration: _events[index].duration,
-                      employee: _events[index].employee,
-                      age_restricrion: _events[index].age_restricrion,
+                      event: _events[index],
                     ),
                   );
                 },

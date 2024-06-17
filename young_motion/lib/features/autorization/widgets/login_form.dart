@@ -21,9 +21,9 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
-
+      final _supabase = Supabase.instance.client;
       try {
-        final user = await Supabase.instance.client.auth
+        final user = await _supabase.auth
             .signInWithPassword(email: email, password: password);
 
         context.router.replaceNamed('/');

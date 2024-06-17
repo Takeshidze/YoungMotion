@@ -12,7 +12,7 @@ class EmployeeCard extends StatelessWidget {
       margin: EdgeInsets.all(8.0),
       padding: EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.grey.shade300),
+        border: Border.all(width: 1.5, color: Colors.grey.shade200),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
@@ -32,26 +32,32 @@ class EmployeeCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          Text(
-            employee.full_name,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            employee.post,
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                employee.rating.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14),
+                employee.full_name,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              Icon(
-                Icons.star,
-                size: 18,
-                color: Colors.amber,
-              )
+              Text(
+                employee.post,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Row(
+                children: [
+                  Text(
+                    employee.rating.toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Icon(
+                    Icons.star,
+                    size: 18,
+                    color: Colors.amber,
+                  )
+                ],
+              ),
             ],
           ),
         ],
